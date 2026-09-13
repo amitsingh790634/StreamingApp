@@ -1,6 +1,6 @@
 Graded Project: Orchestration and Scaling — StreamingApp
 
-GitHub repository:
+GitHub repository (LIVE):
 https://github.com/amitsingh790634/StreamingApp
 
 Fork of:
@@ -12,10 +12,20 @@ Helm chart:
 Install:
 helm install streamingapp ./helm/streamingapp -n streamingapp --create-namespace
 
-Application URL (Ingress):
+Application URL (Ingress) — LOCAL only after helm install, not a public website:
 http://streamingapp.local
 
-Docker Hub images (tag 1.0.0):
+Docker Hub account (LIVE):
+https://hub.docker.com/u/amitsingh790634
+
+Existing images on this account (LIVE — do not use these for the assignment):
+https://hub.docker.com/r/amitsingh790634/protfolio-app
+https://hub.docker.com/r/amitsingh790634/python-app-mini-multistage
+https://hub.docker.com/r/amitsingh790634/two-tier-flask-app
+https://hub.docker.com/r/amitsingh790634/admin-gymjaao
+https://hub.docker.com/r/amitsingh790634/gym_admin
+
+Assignment images (tag 1.0.0) — built on this Mac, NOT on Docker Hub yet (these 404 until we docker login + push):
 https://hub.docker.com/r/amitsingh790634/streaming-auth
 https://hub.docker.com/r/amitsingh790634/streaming-stream
 https://hub.docker.com/r/amitsingh790634/streaming-admin
