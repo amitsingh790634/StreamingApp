@@ -1,4 +1,10 @@
+const runtime =
+  (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__) || {};
+
 const getEnv = (key, fallback) => {
+  if (runtime[key]) {
+    return runtime[key];
+  }
   const value = process.env[key];
   return value === undefined || value === '' ? fallback : value;
 };

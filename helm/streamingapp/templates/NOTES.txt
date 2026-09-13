@@ -1,0 +1,36 @@
+StreamingApp is installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+1. Wait for every workload to become Ready:
+
+   kubectl rollout status deploy/auth deploy/streaming deploy/admin deploy/chat deploy/frontend -n {{ .Release.Namespace }}
+   kubectl rollout status statefulset/{{ .Values.mongo.serviceName }} -n {{ .Release.Namespace }}
+
+2. Confirm pods, services, and ingress:
+
+   kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
+
+3. Reach the app through Ingress host {{ .Values.ingress.host }}
+
+{{- if contains "local" .Values.ingress.host }}
+   # Kind / Minikube / local clusters — add this host to /etc/hosts
+   echo "$(minikube ip 2>/dev/null || echo 127.0.0.1)  {{ .Values.ingress.host }}" | sudo tee -a /etc/hosts
+   open http://{{ .Values.ingress.host }}
+{{- else }}
+   open http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}
+{{- end }}
+
+Ingress routes
+  /                 -> {{ .Values.services.frontend.serviceName }}:{{ .Values.services.frontend.port }}
+  /api              -> {{ .Values.services.auth.serviceName }}:{{ .Values.services.auth.port }}   (login, register)
+  /api/auth         -> {{ .Values.services.auth.serviceName }}:{{ .Values.services.auth.port }}
+  /api/streaming    -> {{ .Values.services.streaming.serviceName }}:{{ .Values.services.streaming.port }}
+  /api/admin        -> {{ .Values.services.admin.serviceName }}:{{ .Values.services.admin.port }}
+  /api/chat + /socket.io -> {{ .Values.services.chat.serviceName }}:{{ .Values.services.chat.port }}
+
+Scale an example service:
+
+  kubectl scale deploy/streaming --replicas=4 -n {{ .Release.Namespace }}
+
+Zero-downtime image bump:
+
+  helm upgrade {{ .Release.Name }} ./helm/streamingapp --set services.auth.tag=1.0.1

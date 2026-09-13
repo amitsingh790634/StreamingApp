@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.auth.serviceName }}
+  labels:
+    {{- include "streamingapp.componentLabels" (dict "root" . "component" .Values.services.auth.name) | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "streamingapp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.services.auth.name }}
+  ports:
+    - name: http
+      port: {{ .Values.services.auth.port }}
+      targetPort: http

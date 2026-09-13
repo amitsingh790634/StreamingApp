@@ -1,0 +1,132 @@
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+imagePullPolicy: IfNotPresent
+
+# Docker Hub images (Task 1). Override registry for Amazon ECR.
+imageRegistry: ""
+
+services:
+  auth:
+    name: auth
+    serviceName: auth-svc
+    image: amitsingh790634/streaming-auth
+    tag: "1.0.0"
+    replicas: 2
+    port: 3001
+    probePath: /health
+  streaming:
+    name: streaming
+    serviceName: streaming-svc
+    image: amitsingh790634/streaming-stream
+    tag: "1.0.0"
+    replicas: 2
+    port: 3002
+    probePath: /api/health
+  admin:
+    name: admin
+    serviceName: admin-svc
+    image: amitsingh790634/streaming-admin
+    tag: "1.0.0"
+    replicas: 2
+    port: 3003
+    probePath: /api/health
+  chat:
+    name: chat
+    serviceName: chat-svc
+    image: amitsingh790634/streaming-chat
+    tag: "1.0.0"
+    replicas: 2
+    port: 3004
+    probePath: /api/health
+  frontend:
+    name: frontend
+    serviceName: frontend-svc
+    image: amitsingh790634/streaming-frontend
+    tag: "1.0.0"
+    replicas: 2
+    port: 80
+    probePath: /healthz
+
+mongo:
+  enabled: true
+  image: mongo
+  tag: "6"
+  port: 27017
+  serviceName: mongo
+  storageSize: 5Gi
+  storageClassName: ""
+  database: streamingapp
+
+rollingUpdate:
+  maxUnavailable: 0
+  maxSurge: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+frontendResources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+mongoResources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+config:
+  awsRegion: ap-south-1
+  awsS3Bucket: ""
+  awsCdnUrl: ""
+  clientUrls: "http://streamingapp.local"
+  streamingPublicUrl: "http://streamingapp.local"
+
+# Injected into the frontend as /runtime-config.js so one image works on any host.
+frontendRuntime:
+  REACT_APP_AUTH_API_URL: "http://streamingapp.local/api"
+  REACT_APP_STREAMING_API_URL: "http://streamingapp.local/api"
+  REACT_APP_STREAMING_PUBLIC_URL: "http://streamingapp.local"
+  REACT_APP_ADMIN_API_URL: "http://streamingapp.local/api/admin"
+  REACT_APP_CHAT_API_URL: "http://streamingapp.local/api/chat"
+  REACT_APP_CHAT_SOCKET_URL: "http://streamingapp.local"
+
+secrets:
+  jwtSecret: "change-me-in-production"
+  awsAccessKeyId: ""
+  awsSecretAccessKey: ""
+
+ingress:
+  enabled: true
+  className: nginx
+  host: streamingapp.local
+  tls:
+    enabled: false
+    secretName: streamingapp-tls
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "64m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+
+hpa:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  cpuAverageUtilization: 70
+
+autoscaling:
+  enabled: false

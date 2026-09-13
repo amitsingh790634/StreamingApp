@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.chat.name }}
+  labels:
+    {{- include "streamingapp.componentLabels" (dict "root" . "component" .Values.services.chat.name) | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.chat.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+  selector:
+    matchLabels:
+      {{- include "streamingapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: {{ .Values.services.chat.name }}
+  template:
+    metadata:
+      labels:
+        {{- include "streamingapp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.services.chat.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.chat.name }}
+          image: {{ include "streamingapp.image" (dict "root" . "repository" .Values.services.chat.image "tag" .Values.services.chat.tag) }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.chat.port }}
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: PORT_CHAT
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: MONGO_URI
+            - name: CLIENT_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: CLIENT_URLS
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-secret
+                  key: JWT_SECRET
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.services.chat.probePath }}
+              port: http
+            initialDelaySeconds: 8
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.chat.probePath }}
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

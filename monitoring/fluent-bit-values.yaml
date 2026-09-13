@@ -1,0 +1,21 @@
+# Reference values if you install Fluent Bit with Helm instead of the AWS YAML manifests.
+# helm repo add fluent https://fluent.github.io/helm-charts
+# helm upgrade --install fluent-bit fluent/fluent-bit -n amazon-cloudwatch --create-namespace -f monitoring/fluent-bit-values.yaml
+
+backend:
+  - name: cloudwatch_logs
+    type: cloudwatch_logs
+    match: "*"
+    parameters:
+      region: ap-south-1
+      logGroupName: /streamingapp/application
+      autoCreateGroup: true
+      logStreamPrefix: from-fluent-bit-
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi

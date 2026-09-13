@@ -1,0 +1,23 @@
+Graded Project: Orchestration and Scaling — StreamingApp
+
+GitHub repository:
+https://github.com/amitsingh790634/StreamingApp
+
+Fork of:
+https://github.com/UnpredictablePrashant/StreamingApp
+
+Helm chart:
+./helm/streamingapp
+
+Install:
+helm install streamingapp ./helm/streamingapp -n streamingapp --create-namespace
+
+Application URL (Ingress):
+http://streamingapp.local
+
+Docker Hub images (tag 1.0.0):
+https://hub.docker.com/r/amitsingh790634/streaming-auth
+https://hub.docker.com/r/amitsingh790634/streaming-stream
+https://hub.docker.com/r/amitsingh790634/streaming-admin
+https://hub.docker.com/r/amitsingh790634/streaming-chat
+https://hub.docker.com/r/amitsingh790634/streaming-frontend

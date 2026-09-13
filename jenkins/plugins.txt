@@ -1,0 +1,15 @@
+workflow-aggregator
+git
+github
+github-branch-source
+docker-workflow
+docker-plugin
+credentials
+credentials-binding
+pipeline-stage-view
+timestamper
+ws-cleanup
+amazon-ecr
+aws-credentials
+plain-credentials
+blueocean

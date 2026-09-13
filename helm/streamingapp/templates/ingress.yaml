@@ -1,0 +1,78 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "streamingapp.fullname" . }}
+  labels:
+    {{- include "streamingapp.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /api/streaming
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.streaming.serviceName }}
+                port:
+                  number: {{ .Values.services.streaming.port }}
+          - path: /api/admin
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.admin.serviceName }}
+                port:
+                  number: {{ .Values.services.admin.port }}
+          - path: /api/chat
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.chat.serviceName }}
+                port:
+                  number: {{ .Values.services.chat.port }}
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.auth.serviceName }}
+                port:
+                  number: {{ .Values.services.auth.port }}
+          - path: /socket.io
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.chat.serviceName }}
+                port:
+                  number: {{ .Values.services.chat.port }}
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.auth.serviceName }}
+                port:
+                  number: {{ .Values.services.auth.port }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.auth.serviceName }}
+                port:
+                  number: {{ .Values.services.auth.port }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.frontend.serviceName }}
+                port:
+                  number: {{ .Values.services.frontend.port }}
+{{- end }}

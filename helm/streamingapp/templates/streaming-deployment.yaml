@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.streaming.name }}
+  labels:
+    {{- include "streamingapp.componentLabels" (dict "root" . "component" .Values.services.streaming.name) | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.streaming.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+  selector:
+    matchLabels:
+      {{- include "streamingapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: {{ .Values.services.streaming.name }}
+  template:
+    metadata:
+      labels:
+        {{- include "streamingapp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.services.streaming.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.streaming.name }}
+          image: {{ include "streamingapp.image" (dict "root" . "repository" .Values.services.streaming.image "tag" .Values.services.streaming.tag) }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.streaming.port }}
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: PORT_STREAMING
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: MONGO_URI
+            - name: CLIENT_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: CLIENT_URLS
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: AWS_REGION
+            - name: AWS_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: AWS_S3_BUCKET
+            - name: AWS_CDN_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: AWS_CDN_URL
+            - name: STREAMING_PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-config
+                  key: STREAMING_PUBLIC_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-secret
+                  key: JWT_SECRET
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "streamingapp.fullname" . }}-secret
+                  key: AWS_SECRET_ACCESS_KEY
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.services.streaming.probePath }}
+              port: http
+            initialDelaySeconds: 8
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.streaming.probePath }}
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

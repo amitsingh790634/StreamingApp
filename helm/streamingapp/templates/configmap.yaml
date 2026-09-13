@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "streamingapp.fullname" . }}-config
+  labels:
+    {{- include "streamingapp.labels" . | nindent 4 }}
+data:
+  PORT_AUTH: {{ .Values.services.auth.port | quote }}
+  PORT_STREAMING: {{ .Values.services.streaming.port | quote }}
+  PORT_ADMIN: {{ .Values.services.admin.port | quote }}
+  PORT_CHAT: {{ .Values.services.chat.port | quote }}
+  CLIENT_URLS: {{ .Values.config.clientUrls | quote }}
+  AWS_REGION: {{ .Values.config.awsRegion | quote }}
+  AWS_S3_BUCKET: {{ .Values.config.awsS3Bucket | quote }}
+  AWS_CDN_URL: {{ .Values.config.awsCdnUrl | quote }}
+  STREAMING_PUBLIC_URL: {{ .Values.config.streamingPublicUrl | quote }}
+  MONGO_URI: {{ include "streamingapp.mongoUri" . | quote }}
+  MONGO_DB: {{ .Values.mongo.database | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "streamingapp.fullname" . }}-frontend-runtime
+  labels:
+    {{- include "streamingapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  runtime-config.js: |
+    window.__RUNTIME_CONFIG__ = {
+      REACT_APP_AUTH_API_URL: {{ .Values.frontendRuntime.REACT_APP_AUTH_API_URL | quote }},
+      REACT_APP_STREAMING_API_URL: {{ .Values.frontendRuntime.REACT_APP_STREAMING_API_URL | quote }},
+      REACT_APP_STREAMING_PUBLIC_URL: {{ .Values.frontendRuntime.REACT_APP_STREAMING_PUBLIC_URL | quote }},
+      REACT_APP_ADMIN_API_URL: {{ .Values.frontendRuntime.REACT_APP_ADMIN_API_URL | quote }},
+      REACT_APP_CHAT_API_URL: {{ .Values.frontendRuntime.REACT_APP_CHAT_API_URL | quote }},
+      REACT_APP_CHAT_SOCKET_URL: {{ .Values.frontendRuntime.REACT_APP_CHAT_SOCKET_URL | quote }}
+    };

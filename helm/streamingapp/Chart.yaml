@@ -1,0 +1,13 @@
+apiVersion: v2
+name: streamingapp
+description: Helm chart for the StreamingApp 5-service MERN platform (auth, streaming, admin, chat, frontend) plus MongoDB
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - streaming
+  - mern
+  - microservices
+maintainers:
+  - name: amitsingh790634
+home: https://github.com/amitsingh790634/StreamingApp

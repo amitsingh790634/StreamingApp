@@ -1,0 +1,55 @@
+# Override file for Amazon EKS + ECR.
+# Usage:
+#   helm upgrade --install streamingapp ./helm/streamingapp -f helm/streamingapp/values-eks.yaml \
+#     --set imageRegistry=123456789012.dkr.ecr.ap-south-1.amazonaws.com \
+#     --set ingress.host=streamingapp.example.com \
+#     --set secrets.jwtSecret="$JWT_SECRET"
+
+imagePullPolicy: Always
+
+services:
+  auth:
+    image: streaming-auth
+    tag: "1.0.0"
+  streaming:
+    image: streaming-stream
+    tag: "1.0.0"
+  admin:
+    image: streaming-admin
+    tag: "1.0.0"
+  chat:
+    image: streaming-chat
+    tag: "1.0.0"
+  frontend:
+    image: streaming-frontend
+    tag: "1.0.0"
+
+mongo:
+  storageSize: 20Gi
+  storageClassName: gp2
+
+ingress:
+  enabled: true
+  className: nginx
+  host: streamingapp.example.com
+  tls:
+    enabled: false
+
+config:
+  awsRegion: ap-south-1
+  clientUrls: "http://streamingapp.example.com"
+  streamingPublicUrl: "http://streamingapp.example.com"
+
+frontendRuntime:
+  REACT_APP_AUTH_API_URL: "http://streamingapp.example.com/api"
+  REACT_APP_STREAMING_API_URL: "http://streamingapp.example.com/api"
+  REACT_APP_STREAMING_PUBLIC_URL: "http://streamingapp.example.com"
+  REACT_APP_ADMIN_API_URL: "http://streamingapp.example.com/api/admin"
+  REACT_APP_CHAT_API_URL: "http://streamingapp.example.com/api/chat"
+  REACT_APP_CHAT_SOCKET_URL: "http://streamingapp.example.com"
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  cpuAverageUtilization: 70

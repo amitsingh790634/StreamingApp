@@ -1,0 +1,17 @@
+{{- if .Values.mongo.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mongo.serviceName }}
+  labels:
+    {{- include "streamingapp.componentLabels" (dict "root" . "component" "mongo") | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "streamingapp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: mongo
+  ports:
+    - name: mongodb
+      port: {{ .Values.mongo.port }}
+      targetPort: mongodb
+{{- end }}
